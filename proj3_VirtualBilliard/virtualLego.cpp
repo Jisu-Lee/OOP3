@@ -33,8 +33,9 @@ const int Height = 768;
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
-//const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
-const float spherePos[4][2] = { { 2.4f, 0.2f }, { 2.4f, -0.2f }, { 3.3f, 0 }, { -2.7f, -0.9f } };
+const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
+//for debugging
+//const float spherePos[4][2] = { { 2.4f, 0.2f }, { 2.4f, -0.2f }, { 3.3f, 0 }, { -2.7f, -0.9f } };
 
 // initialize the color of each ball (ball0 ~ ball3)
 const D3DXCOLOR sphereColor[4] = {d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE};
@@ -186,7 +187,6 @@ bool Setup()
 	g_target_blueball.setCenter(.0f, (float)M_RADIUS , .0f);
 	
 	if (g_cue.create(Device) == false) return false;
-
 
 	g_cue.setPosition(g_sphere[3 - CPlayer::turn].getCenter());
 	g_cue.HitCallback = [=](){
