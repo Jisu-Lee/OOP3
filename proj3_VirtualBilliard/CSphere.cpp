@@ -17,7 +17,7 @@ CSphere::CSphere() {
 
 CSphere::~CSphere(){}
 
-bool CSphere::create(IDirect3DDevice9* pDevice, D3DCOLOR color){
+bool CSphere::create(std::string name, IDirect3DDevice9* pDevice, D3DCOLOR color){
 	if (CObject::create(pDevice, Shape::SPHERE) == false) return false;
 	LPD3DXMESH newMesh = convertMesh(pDevice, m_pMesh);
 	if (newMesh == nullptr) return false;
@@ -43,6 +43,8 @@ bool CSphere::create(IDirect3DDevice9* pDevice, D3DCOLOR color){
 
 	m_pMesh->Release();
 	m_pMesh = newMesh;
+
+	this->setName(name);
 
 	return true;
 }
@@ -98,7 +100,7 @@ bool CSphere::hasIntersected(CSphere& ball)
 	//프레임 위치 이용한 계산.
 }
 
-void CSphere::hitBy(CSphere& ball){
+bool CSphere::hitBy(CSphere& ball){
 	if (hasIntersected(ball))
 	{
 		D3DXVECTOR3 avec, a1, a2;
@@ -126,9 +128,10 @@ void CSphere::hitBy(CSphere& ball){
 			ball.moveCenter((2 * this->getRadius() - dest) * 1 * avec);
 		}
 		
-		
+		return true;
 	}
 	//maybe spin will be written here.
+	return false;
 }
 
 void CSphere::ballUpdate(float timeDiff)

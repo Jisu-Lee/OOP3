@@ -107,9 +107,9 @@ bool CWall::hasIntersected(CSphere& ball){
 	return false;
 }
 //changes x-velocity and z-velocity of the ball after collision
-void CWall::hitBy(CSphere& ball){
+bool CWall::hitBy(CSphere& ball){
 	
-	if (!this->hasIntersected(ball)) return;
+	if (!this->hasIntersected(ball)) return false;
 
 	D3DXVECTOR3 cord = ball.getCenter();
 
@@ -133,6 +133,8 @@ void CWall::hitBy(CSphere& ball){
 		ball.setCenter(cord.x, cord.y, 3 - M_RADIUS);
 		ball.setPower(ball.getVelocity().x, ball.getVelocity().z*(-0.5)); // 방향 전환
 	}
+
+	return true;
 }
 
 LPD3DXMESH CWall::convertMesh(IDirect3DDevice9* pDevice, LPD3DXMESH& mesh){

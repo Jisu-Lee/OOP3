@@ -20,7 +20,7 @@ public:
 		const D3DXMATRIX& mView);
 
 	bool hasIntersected(CSphere& ball) override;
-	void hitBy(CSphere& ball) override;
+	bool hitBy(CSphere& ball) override;
 	const D3DXVECTOR3 inline getPosition(){ return D3DXVECTOR3(m_x, m_y, m_z); }
 	inline float getHeight() const { return M_HEIGHT; }
 

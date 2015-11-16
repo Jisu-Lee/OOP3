@@ -8,14 +8,14 @@ public:
 	CSphere();
 	~CSphere();
 
-	bool create(IDirect3DDevice9* pDevice, D3DCOLOR);
+	bool create(std::string name, IDirect3DDevice9* pDevice, D3DCOLOR);
 
 	void tempdraw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld,
 		const D3DXMATRIX& mView,
 		const D3DXVECTOR4& mLightPos,
 		const D3DXVECTOR4& camPos);
 	bool hasIntersected(CSphere& ball) override;
-	void hitBy(CSphere& ball) override;
+	bool hitBy(CSphere& ball) override;
 
 	void ballUpdate(float timeDiff);
 
@@ -47,14 +47,20 @@ public:
 		return (velocity.x == 0 && velocity.z == 0);
 		//x축 속도와 z축 속도가 모두 0일 경우 true 반환
 	}
-	static inline bool IsAllStop(CSphere r1, CSphere r2, CSphere w, CSphere y){
+	static inline bool IsAllStop(CSphere& r1, CSphere& r2, CSphere& w, CSphere& y){
 		return r1.isStop() && r2.isStop() && w.isStop() && y.isStop();
 		//4개의 공이 모두 정지해 있을 경우 true 반환
 	}
+	void inline setName(std::string name){ this->name = name; }
+	std::string inline getName(){ return this->name; }
+
 private:
 
 	D3DXVECTOR3				velocity;
 	float                   m_radius;
 	LPD3DXMESH convertMesh(IDirect3DDevice9* pDevice, LPD3DXMESH& mesh) override;
 	void moveCenter(D3DXVECTOR3 velocity);
+
+	std::string name;
+
 };

@@ -14,6 +14,7 @@
 #include "CSphere.h"
 #include "CWall.h"
 #include "CLight.h"
+#include "CPlayer.h"
 #include "CText.h"
 #include "ConstVariable.h"
 #include "CCue.h"
@@ -32,9 +33,14 @@ const int Height = 768;
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
-const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
+//const float spherePos[4][2] = { {-2.7f,0} , {+2.4f,0} , {3.3f,0} , {-2.7f,-0.9f}}; 
+const float spherePos[4][2] = { { 2.4f, 0.2f }, { 2.4f, -0.2f }, { 3.3f, 0 }, { -2.7f, -0.9f } };
+
 // initialize the color of each ball (ball0 ~ ball3)
 const D3DXCOLOR sphereColor[4] = {d3d::RED, d3d::RED, d3d::YELLOW, d3d::WHITE};
+
+string sphereName[4] = { "Red1", "Red2", "Yellow", "White" };
+
 // -----------------------------------------------------------------------------
 // Camera view
 // -----------------------------------------------------------------------------
@@ -57,6 +63,8 @@ D3DXMATRIX g_mBackup;
 #define M_HEIGHT 0.01
 #define DECREASE_RATE 0.9982
 
+#define PLAYER_NUM 2
+
 // -----------------------------------------------------------------------------
 // Global variables
 // -----------------------------------------------------------------------------
@@ -64,6 +72,7 @@ CWall	g_legoPlane;
 D3DXPLANE g_Plane(-4.0f, 0.f, -3.f, 0.f);
 CWall	g_legowall[4];
 CSphere	g_sphere[4];
+CPlayer player[PLAYER_NUM];
 /*CSphere g_redSphere[2];
 CSphere g_whiteSphere;
 CSphere g_yellowSphere;*/
@@ -75,7 +84,11 @@ D3DXMATRIXA16	g_mShadowProj;
 
 CSphere	g_target_blueball;
 CLight	g_light;
+//need to be deleted!
 static int order = 0;
+
+bool is_score_checked = true;
+
 const string player1Str = "Player1";
 const string player2Str = "Player2";
 CText g_player1;
@@ -159,30 +172,40 @@ bool Setup()
 
 	// create four balls and set the position
 	for (i=0;i<4;i++) {
-		if (false == g_sphere[i].create(Device, sphereColor[i])) return false;
+		if (false == g_sphere[i].create(sphereName[i], Device, sphereColor[i])) return false;
 		g_sphere[i].setCenter(spherePos[i][0], (float)M_RADIUS , spherePos[i][1]);
 		g_sphere[i].setPower(0,0);
 	}
 	
+	//initialize player objects
+	player[0].create(g_sphere[3]);		//white
+	player[1].create(g_sphere[2]);		//yellow
+
 	// create blue ball for set direction
-    if (false == g_target_blueball.create(Device, d3d::BLUE)) return false;
+    if (false == g_target_blueball.create("Blue", Device, d3d::BLUE)) return false;
 	g_target_blueball.setCenter(.0f, (float)M_RADIUS , .0f);
 	
-
 	if (g_cue.create(Device) == false) return false;
 
-	g_cue.setPosition(g_sphere[3].getCenter());
+
+	g_cue.setPosition(g_sphere[3 - CPlayer::turn].getCenter());
 	g_cue.HitCallback = [=](){
+		int curr_sphere = 3 - CPlayer::turn;
 		g_cue.setVisible(false);
 		D3DXVECTOR3 targetpos = g_target_blueball.getCenter();
-		D3DXVECTOR3	spherePos = g_sphere[order+2].getCenter();
+		D3DXVECTOR3	spherePos = g_sphere[curr_sphere].getCenter();
+
 		double theta = acos(sqrt(pow(targetpos.x - spherePos.x, 2)) / sqrt(pow(targetpos.x - spherePos.x, 2) +
-			pow(targetpos.z - spherePos.z, 2)));		// 기본 1 사분면
-		if (targetpos.z - spherePos.z <= 0 && targetpos.x - spherePos.x >= 0) { theta = -theta; }	//4 사분면
-		if (targetpos.z - spherePos.z >= 0 && targetpos.x - spherePos.x <= 0) { theta = PI - theta; } //2 사분면
-		if (targetpos.z - spherePos.z <= 0 && targetpos.x - spherePos.x <= 0){ theta = PI + theta; } // 3 사분면
+			pow(targetpos.z - spherePos.z, 2)));		// 기본 1 사분면 및 x축 오른쪽
+
+		if (targetpos.z - spherePos.z < 0 && targetpos.x - spherePos.x > 0) { theta = -theta; }	//4 사분면
+		else if (targetpos.z - spherePos.z >= 0 && targetpos.x - spherePos.x < 0) { theta = PI - theta; } //2 사분면 및 x축 왼쪽
+		else if (targetpos.z - spherePos.z < 0 && targetpos.x - spherePos.x < 0) { theta = PI + theta; } // 3 사분면
+		else if (targetpos.z - spherePos.z < 0 && targetpos.x - spherePos.x == 0) { theta = PI*(3 / 2); } // y축 위쪽
+		else if (targetpos.z - spherePos.z > 0 && targetpos.x - spherePos.x == 0) { theta = PI*(1 / 2); } // y축 아래쪽
+
 		double distance = sqrt(pow(targetpos.x - spherePos.x, 2) + pow(targetpos.z - spherePos.z, 2));
-		g_sphere[order+2].setPower(distance * cos(theta), distance * sin(theta));
+		g_sphere[curr_sphere].setPower(distance * cos(theta), distance * sin(theta));
 	};
 	// light setting 
    
@@ -274,15 +297,40 @@ bool Display(float timeDelta)
 
 		campSetting();
 
+		CPlayer& current_player = player[CPlayer::turn];
+
 		if (CSphere::IsAllStop(g_sphere[0], g_sphere[1], g_sphere[2], g_sphere[3]) && !g_cue.isPlaying()){
-			if (order == 0){
+			//JisuLee__update score for current player
+			if (!is_score_checked){
+				current_player.decideScore();
+
+				if (!current_player.isOneMoreTurn()) { CPlayer::switchTurn(); }
+
+				//debugging
+				string message = to_string(current_player.getScore());
+				const char *temp = message.c_str();
+				::MessageBox(0, temp, 0, 0);
+
+				//initialize flags
+				is_score_checked = true;
+				current_player.resetHit();
+			}
+
+			int curr_sphere = 3 - CPlayer::turn;
+			if (curr_sphere == 2){
+				OutputDebugString("2\n");
+			}
+			else{
+				OutputDebugString("3\n");
+			}
+
+			if (CPlayer::turn == 0){
 				g_turnIndicator.setStr("<Turn");
-				g_cue.setPosition(g_sphere[3].getCenter());
 			}
 			else{
 				g_turnIndicator.setStr("Turn>");
-				g_cue.setPosition(g_sphere[2].getCenter());
 			}
+			g_cue.setPosition(g_sphere[curr_sphere].getCenter());
 			g_cue.setVisible(true);
 			g_cue.setRotationRelative(g_target_blueball.getCenter());
 
@@ -299,7 +347,17 @@ bool Display(float timeDelta)
 		for(i = 0 ;i < 4; i++){
 			for(j = 0 ; j < 4; j++) {
 				if(i >= j) {continue;}
-				g_sphere[i].hitBy(g_sphere[j]);
+				if (g_sphere[i].hitBy(g_sphere[j])){
+					OutputDebugString("hit\n");
+					if (current_player.isMyBall(g_sphere[i])){
+						OutputDebugString("myBall : g_sphere[i]\n");
+						current_player.setHitBall(g_sphere[j]);
+					}
+					else if (current_player.isMyBall(g_sphere[j])){
+						OutputDebugString("myBall : g_sphere[j]\n");
+						current_player.setHitBall(g_sphere[i]);
+					}
+				}
 			}
 		}
 
@@ -460,7 +518,7 @@ LRESULT CALLBACK d3d::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case VK_SPACE:
 
 					g_cue.playHit();
-					(order == 1) ? (order = 0) : (order = 1);
+					is_score_checked = false;
 
 					break;
 				default:

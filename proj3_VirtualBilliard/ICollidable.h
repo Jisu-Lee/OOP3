@@ -4,6 +4,6 @@ class CSphere;
 class ICollidable{
 public:
 	virtual bool hasIntersected(CSphere&) = 0;
-	virtual void hitBy(CSphere&) = 0;
+	virtual bool hitBy(CSphere&) = 0;
 
 };
