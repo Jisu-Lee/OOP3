@@ -45,9 +45,9 @@ void CPlayer::setHitBall(CSphere& ball) {
 }
 
 void CPlayer::decideScore() {
-	if (hit_opponent || (!(hit_red1) && !(hit_red2)) ) //공타 
+	if (!hit_red1 && !hit_red2) //공타 
 		score += 10; 
-	else if (hit_red1 && hit_red2) {
+	else if (!hit_opponent && hit_red1 && hit_red2) {
 		score -= 10;
 	}
 }

@@ -42,7 +42,7 @@ public:
 		hit_opponent = false;
 	}
 	inline bool isOneMoreTurn(){
-		return hit_red1 && hit_red2;
+		return !hit_opponent && hit_red1 && hit_red2;
 	}
 	inline bool endGame(){
 		if (score <= 0)	return true;
