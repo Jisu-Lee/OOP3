@@ -6,7 +6,7 @@ int CPlayer::turn = 0;
 CPlayer::CPlayer() {
 
 	ball_name  = "NULL";
-	score	   = 0;
+	score	   = GOAL_SCORE;
 	hit_red1   = false;
 	hit_red2   = false;
 	hit_opponent  = false;
@@ -16,7 +16,7 @@ CPlayer::CPlayer() {
 CPlayer::CPlayer(CSphere& ball) {
 
 	ball_name  = ball.getName();
-	score	   = 0;
+	score	   = GOAL_SCORE;
 	hit_red1   = false;
 	hit_red2   = false;
 	hit_opponent  = false;

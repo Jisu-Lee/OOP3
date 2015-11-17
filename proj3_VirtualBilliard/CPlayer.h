@@ -3,6 +3,8 @@
 #include "CSphere.h"
 #include "d3dUtility.h"
 
+#define	GOAL_SCORE 100
+
 /*
 player 클래스를 만든 이유는
 이 것을 안만드면 공에서 점수를 판단함
