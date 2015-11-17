@@ -292,13 +292,13 @@ bool Display(float timeDelta)
 		
 		Device->BeginScene();
 
-		g_player1.draw();
-		g_player2.draw();
-
 		campSetting();
 
 		CPlayer& current_player = player[CPlayer::turn];
-
+		g_player1.setStr("Player1: " + to_string(player[0].getScore()));
+		g_player2.setStr("Player2: " + to_string(player[1].getScore()));
+		g_player1.draw();
+		g_player2.draw();
 		if (CSphere::IsAllStop(g_sphere[0], g_sphere[1], g_sphere[2], g_sphere[3]) && !g_cue.isPlaying()){
 			//JisuLee__update score for current player
 			if (!is_score_checked){

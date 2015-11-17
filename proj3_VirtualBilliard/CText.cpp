@@ -5,8 +5,8 @@ CText::CText(){}
 CText::~CText(){
 }
 
-bool CText::create(IDirect3DDevice9* pDevice, int screenWidth, int screenHeight, string name){
-	this->name = name;
+bool CText::create(IDirect3DDevice9* pDevice, int screenWidth, int screenHeight, string input){
+	this->text = input;
 	rct.left = 0;
 	rct.right = screenWidth;
 	rct.top = 0;
@@ -19,7 +19,7 @@ bool CText::create(IDirect3DDevice9* pDevice, int screenWidth, int screenHeight,
 	return true;
 }
 void CText::draw(){
-	ppFont->DrawTextA(0, name.c_str(), -1, &rct, anchor, fontColor);
+	ppFont->DrawTextA(0, text.c_str(), -1, &rct, anchor, fontColor);
 }
 void CText::setPosition(int x, int y){
 	rct.left = x;

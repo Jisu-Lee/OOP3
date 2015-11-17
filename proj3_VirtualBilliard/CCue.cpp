@@ -77,7 +77,7 @@ void CCue::playAnimation(){
 		moveDistance += movementDelta;
 		position.z += movementDelta * cos(rotation);
 		position.x += movementDelta * sin(rotation);
-		if (moveDistance > 20){
+		if (moveDistance > CYLINDER_MOVEDISTANCE){
 			pulled = true;
 		}
 	}
