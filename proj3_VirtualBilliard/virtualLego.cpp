@@ -28,8 +28,8 @@ using namespace std;
 IDirect3DDevice9* Device = NULL;
 
 // window size
-const int Width  = 1024;
-const int Height = 768;
+const int Width  = 800;
+const int Height = 600;
 
 // There are four balls
 // initialize the position (coordinate) of each ball (ball0 ~ ball3)
@@ -305,11 +305,6 @@ bool Display(float timeDelta)
 				current_player.decideScore();
 
 				if (!current_player.isOneMoreTurn()) { CPlayer::switchTurn(); }
-
-				//debugging
-				string message = to_string(current_player.getScore());
-				const char *temp = message.c_str();
-				::MessageBox(0, temp, 0, 0);
 
 				//initialize flags
 				is_score_checked = true;
