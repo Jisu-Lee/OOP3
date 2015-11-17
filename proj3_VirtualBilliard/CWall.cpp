@@ -28,18 +28,25 @@ bool CWall::create(IDirect3DDevice9* pDevice,
 	switch (type){
 	case Plane:
 		textureFile = PLANE_TEXTURE;
+		m_normalFile = PLANE_NORM;
+		m_specularFile = PLANE_SPEC;
 		effectFile = PLANE_EFFECT;
 		break;
 	case Edge:
 		effectFile = EDGE_EFFECT;
 		textureFile = EDGE_TEXTURE;
+		m_normalFile = PLANE_NORM;
+		m_specularFile = PLANE_SPEC;
 		break;
 	}
 	m_texture = LoadTexture(pDevice, textureFile);
+	m_specular = LoadTexture(pDevice, m_specularFile);
+	m_normal = LoadTexture(pDevice, m_normalFile);
+
 	m_effect = LoadShader(pDevice, effectFile);
 
 
-	if (m_texture == nullptr || m_effect == nullptr)
+	if (m_texture == nullptr || m_effect == nullptr || m_specular == nullptr || m_normal == nullptr)
 		return false;
 	m_pMesh->Release();
 	m_pMesh = newMesh;
@@ -48,7 +55,8 @@ bool CWall::create(IDirect3DDevice9* pDevice,
 }
 
 void CWall::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld,
-	const D3DXMATRIX& mView){
+	const D3DXMATRIX& mView,
+	const D3DXVECTOR4& camPos){
 	if (NULL == pDevice)
 		return;
 	//pDevice->SetTransform(D3DTS_WORLD, &mWorld);
@@ -60,12 +68,23 @@ void CWall::draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld,
 	D3DXMATRIX proj;
 	pDevice->GetTransform(D3DTS_PROJECTION, &proj);
 	pDevice->MultiplyTransform(D3DTS_WORLD, &m_mLocal);
-	m_effect->SetMatrix("gLocalMatrix", &m_mLocal);
+
+	D3DXMATRIX matWorldView, matWorldViewProjection;
+	D3DXMatrixMultiply(&matWorldView, &m_mLocal, &mWorld);
+	D3DXMatrixMultiply(&matWorldView, &mWorld, &mView);
+	D3DXMatrixMultiply(&matWorldViewProjection, &matWorldView, &proj);
+
+
 	m_effect->SetMatrix("gWorldMatrix", &mWorld);
-	m_effect->SetMatrix("gViewMatrix", &mView);
-	//m_effect->SetVector("gWorldLightPosition", &mLightPos);
-	m_effect->SetMatrix("gProjectionMatrix", &proj);
+	m_effect->SetMatrix("gWorldViewProjection", &matWorldViewProjection);
+
+	m_effect->SetVector("gWorldCameraPosition", &camPos);
+	m_effect->SetVector("gWorldLightPosition", &(D3DXVECTOR4(0, 500, 0, 1)));
+	m_effect->SetVector("gLightColor", &(D3DXVECTOR4(100, 100, 100, 1)));
+	
 	m_effect->SetTexture("DiffuseMap", m_texture);
+	m_effect->SetTexture("NormalMap", m_normal);
+	m_effect->SetTexture("SpecularMap", m_specular);
 	//m_effect->
 
 	pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
@@ -136,16 +155,18 @@ bool CWall::hitBy(CSphere& ball){
 
 	return true;
 }
-
+void CWall::destroy(){
+	CObject::destroy();
+	if (m_specular != nullptr){
+		m_specular->Release();
+		m_specular = nullptr;
+	}
+	if (m_normal != nullptr){
+		m_normal->Release();
+		m_normal = nullptr;
+	}
+}
 LPD3DXMESH CWall::convertMesh(IDirect3DDevice9* pDevice, LPD3DXMESH& mesh){
-
-	D3DVERTEXELEMENT9 decl[] =
-	{
-		{ 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
-		{ 0, sizeof(D3DXVECTOR3), D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
-		{ 0, sizeof(D3DXVECTOR3) * 2, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
-		D3DDECL_END()//will be declared on 
-	};
 
 	LPD3DXMESH newMesh = nullptr;
 	VERTEX* pVerts;

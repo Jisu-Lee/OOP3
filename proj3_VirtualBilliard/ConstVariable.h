@@ -47,5 +47,7 @@
 #define PLANE_WIDTH 9
 #define PLANE_HEIGHT 0.03f
 #define PLANE_DEPTH 6
-#define PLANE_TEXTURE "pool.png"
-#define PLANE_EFFECT "SphereEffect.fx"//"temp"
+#define PLANE_TEXTURE "Metal_A1_Diffuse.jpg"
+#define PLANE_EFFECT "Plane.fx"//"temp"
+#define PLANE_SPEC "Metal_A3_Specular.jpg"
+#define PLANE_NORM "Metal_A4_Normal.jpg"

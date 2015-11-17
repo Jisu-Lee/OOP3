@@ -7,7 +7,7 @@ public:
 	CObject();
 	virtual ~CObject();
 
-	void destroy();
+	virtual void destroy();
 	void inline setLocalTransform(const D3DXMATRIX& mLocal) { m_mLocal = mLocal; }
 	void setPosition(float x, float y, float z);
 	void setPosition(const D3DXVECTOR3& position);
@@ -29,6 +29,8 @@ protected:
 	{
 		D3DXVECTOR3 pos;     // vertex position
 		D3DXVECTOR3 norm;    // vertex normal
+		D3DXVECTOR3 tan;
+		D3DXVECTOR3 binorm;
 		float tu;            // texture coordinates
 		float tv;
 	};

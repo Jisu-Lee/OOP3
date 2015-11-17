@@ -90,10 +90,10 @@ float4 ps_main(PS_INPUT Input) : COLOR
 
 	if (diffuse.x > 0){
 		specular = saturate(dot(reflection, -viewDir));
-		specular = pow(specular, 20.0f);
+		specular = pow(specular, 7.0f);
 	}
 
-	float3 ambient = float3(0.5f, 0.5f, 0.5f) * albedo;
+	float3 ambient = float3(0.7f, 0.7f, 0.7f) * albedo;
 
 	return float4(ambient + diffuse + specular, 1);
 

@@ -441,9 +441,9 @@ bool Display(float timeDelta)
 		g_cue.draw(Device, g_mWorld, g_mView);
 
 		// draw plane, walls, and spheres
-		g_legoPlane.draw(Device, g_mWorld, g_mView);
+		g_legoPlane.draw(Device, g_mWorld, g_mView, g_camera_pos);
 		for (i=0;i<4;i++) 	{
-			g_legowall[i].draw(Device, g_mWorld, g_mView);
+			g_legowall[i].draw(Device, g_mWorld, g_mView, g_camera_pos);
 			g_sphere[i].tempdraw(Device, g_mWorld, g_mView, g_light.getPosition4(), g_camera_pos);//  draw(Device, g_mWorld, g_mView);
 		}
 
