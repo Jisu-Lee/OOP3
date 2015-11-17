@@ -94,7 +94,7 @@ const string player1Str = "Player1";
 const string player2Str = "Player2";
 CText g_player1;
 CText g_player2;
-CText g_turnIndicator;
+CText g_scoreIndicator;
 
 CCue g_cue;
 
@@ -119,13 +119,13 @@ void destroyAllLegoBlock(void)
 bool Setup()
 {
 	int i;
-	if (g_turnIndicator.create(Device, Width, Height, "Turn") == false) return false;
+	if (g_scoreIndicator.create(Device, Width, Height, "300") == false) return false;
 	if (g_player1.create(Device, Width, Height, player1Str) == false) return false;
 	if (g_player2.create(Device, Width, Height, player2Str) == false) return false;
 
 	g_player1.setAnchor(DT_TOP | DT_LEFT);
 	g_player2.setAnchor(DT_TOP | DT_RIGHT);
-	g_turnIndicator.setAnchor(DT_TOP | DT_CENTER);
+	g_scoreIndicator.setAnchor(DT_TOP | DT_CENTER);
 
 
     D3DXMatrixIdentity(&g_mWorld);
@@ -325,10 +325,12 @@ bool Display(float timeDelta)
 			}
 
 			if (CPlayer::turn == 0){
-				g_turnIndicator.setStr("<Turn");
+				g_player1.setColor(d3d::RED);
+				g_player2.setColor(d3d::WHITE);
 			}
 			else{
-				g_turnIndicator.setStr("Turn>");
+				g_player1.setColor(d3d::WHITE);
+				g_player2.setColor(d3d::RED);
 			}
 			g_cue.setPosition(g_sphere[curr_sphere].getCenter());
 			g_cue.setVisible(true);
@@ -337,7 +339,7 @@ bool Display(float timeDelta)
 		}
 
 
-		g_turnIndicator.draw();
+		g_scoreIndicator.draw();
 
 		//draw blue ball when all balls stop
 		if (CSphere::IsAllStop(g_sphere[0], g_sphere[1], g_sphere[2], g_sphere[3]))

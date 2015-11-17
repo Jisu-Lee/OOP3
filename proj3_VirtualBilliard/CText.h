@@ -11,7 +11,7 @@ public:
 	void draw();
 	inline void setAnchor(DWORD anchor){ this->anchor = anchor; }
 	void setPosition(int x, int y);
-	inline void setColor(D3DCOLOR color){ this->fontColor = color; }
+	inline void setColor(D3DXCOLOR color){ this->fontColor = color; }
 	inline void setStr(std::string input){ text.assign(input); }
 	void destroy();
 private:
