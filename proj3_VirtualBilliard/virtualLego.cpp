@@ -119,7 +119,7 @@ void destroyAllLegoBlock(void)
 bool Setup()
 {
 	int i;
-	if (g_scoreIndicator.create(Device, Width, Height, "300") == false) return false;
+	if (g_scoreIndicator.create(Device, Width, Height, SCORE) == false) return false;
 	if (g_player1.create(Device, Width, Height, player1Str) == false) return false;
 	if (g_player2.create(Device, Width, Height, player2Str) == false) return false;
 

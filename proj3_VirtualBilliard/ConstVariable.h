@@ -1,6 +1,8 @@
 #pragma once
 
 
+#define SCORE "100"
+
 //Sphere variable
 #define SPHERE_EFFECT "SphereEffect.fx"
 #define SPHERE_RED "redSmiley.png"
