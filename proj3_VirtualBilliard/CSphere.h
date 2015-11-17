@@ -1,50 +1,66 @@
 #pragma once
 #include "CObject.h"
 #include "d3dUtility.h"
-#define SPHERE_VS_NAME "SphereVS.hlsl"
-#define SPHERE_PS_NAME "SpherePS.hlsl"
-#define SPHERE_TEXTURE "wood.jpg"
-class CSphere : public CObject{
+#include "ICollidable.h"
+#include "ConstVariable.h"
+class CSphere : public CObject, public ICollidable{
 public:
 	CSphere();
 	~CSphere();
 
-	bool create(IDirect3DDevice9* pDevice, D3DXCOLOR color = d3d::WHITE);
-	void destroy(void) override;
+	bool create(std::string name, IDirect3DDevice9* pDevice, D3DCOLOR);
 
-	void draw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld,
+	void tempdraw(IDirect3DDevice9* pDevice, const D3DXMATRIX& mWorld,
 		const D3DXMATRIX& mView,
-		const D3DXMATRIX& mProj) override;
-
+		const D3DXVECTOR4& mLightPos,
+		const D3DXVECTOR4& camPos);
 	bool hasIntersected(CSphere& ball) override;
-	void hitBy(CSphere& ball) override;
+	bool hitBy(CSphere& ball) override;
 
 	void ballUpdate(float timeDiff);
 
 	//caution : getters and setters for pre_velocity_x, pre_velocity_z, isChanged are added
-	double inline getVelocity_X() { return this->m_velocity_x; }
-	double inline getVelocity_Z() { return this->m_velocity_z; }
+	D3DXVECTOR3 inline getVelocity() const { return this->velocity; }
 	float inline getRadius(void)  const { return (float)(M_RADIUS); }
 	const inline D3DXVECTOR3 getCenter(void) const
 	{
 		D3DXVECTOR3 org(m_x, m_y, m_z);
 		return org;
 	}
-	
+
 	void setCenter(float x, float y, float z);
 	void inline setPower(double vx, double vz)
 	{
-		this->m_velocity_x = vx;
-		this->m_velocity_z = vz;
+		this->velocity.x = vx;
+		this->velocity.z = vz;
 	}
 
+	void inline setPower(D3DXVECTOR3 velocity){
+		this->velocity = velocity;
+	}
+
+	float inline getPower(){
+		return velocity.x * velocity.x + velocity.z * velocity.z;
+	}
+
+	bool inline isStop(){
+		return (velocity.x == 0 && velocity.z == 0);
+		//x축 속도와 z축 속도가 모두 0일 경우 true 반환
+	}
+	static inline bool IsAllStop(CSphere& r1, CSphere& r2, CSphere& w, CSphere& y){
+		return r1.isStop() && r2.isStop() && w.isStop() && y.isStop();
+		//4개의 공이 모두 정지해 있을 경우 true 반환
+	}
+	void inline setName(std::string name){ this->name = name; }
+	std::string inline getName(){ return this->name; }
+
 private:
+
+	D3DXVECTOR3				velocity;
 	float                   m_radius;
-	float					m_velocity_x;
-	float					m_velocity_z;
-	LPD3DXEFFECT			m_effect;
-	LPDIRECT3DTEXTURE9		m_texture;
-	LPD3DXEFFECT LoadShader(IDirect3DDevice9* pDevice, const char* fileName);
-	LPDIRECT3DTEXTURE9 LoadTexture(IDirect3DDevice9* pDevice, const char* fileName);
-	void setPosition(float x, float y, float z) override;
+	LPD3DXMESH convertMesh(IDirect3DDevice9* pDevice, LPD3DXMESH& mesh) override;
+	void moveCenter(D3DXVECTOR3 velocity);
+
+	std::string name;
+
 };
